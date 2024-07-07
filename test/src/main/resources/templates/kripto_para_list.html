@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kripto Para Tablosu</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Kripto Para Tablosu</h1>
+        <input type="text" id="searchInput" class="form-control mb-3" placeholder="Arama...">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Adı</th>
+                    <th>Son Değer</th>
+                    <th>Değişim Yüzde</th>
+                    <th>Tarih</th>
+                </tr>
+            </thead>
+            <tbody id="kriptoTableBody">
+                <!-- API'den gelen veriler buraya eklenecek -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        fetch('/api/kripto-para')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#kriptoTableBody');
+                const searchInput = document.querySelector('#searchInput');
+
+                // Tabloyu oluştur
+                function renderTable(data) {
+                    tableBody.innerHTML = '';
+                    data.forEach(kripto => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${kripto.adi}</td>
+                            <td>${kripto.sonDeger}</td>
+                            <td>${kripto.degisimYuzde}</td>
+                            <td>${kripto.tarih}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+
+                renderTable(data);
+
+                // Arama işlevselliğini ekle
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const filteredData = data.filter(kripto => 
+                        kripto.adi.toLowerCase().includes(searchTerm)
+                    );
+                    renderTable(filteredData);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finans Verileri</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+        }
+        .header {
+            background: linear-gradient(135deg, #007bff, #00bfff);
+            color: #fff;
+            text-align: center;
+            padding: 30px 0;
+            position: relative;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 48px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(0,0,0,0.5), 0 0 20px rgba(0,0,255,0.5), 0 0 30px rgba(0,0,255,0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(0,0,0,0.5), 0 0 40px rgba(0,0,255,0.5), 0 0 60px rgba(0,0,255,0.5);
+            }
+        }
+
+        .header::after {
+            content: '';
+            background-color: rgba(255, 255, 255, 0.1);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .nav-buttons .cssbuttons-io-button {
+            margin: 0 10px;
+        }
+        .cssbuttons-io-button {
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+        }
+        .cssbuttons-io-button:hover {
+            background-color: #0056b3;
+        }
+        .positive {
+            color: green;
+        }
+        .negative {
+            color: red;
+        }
+        .chart-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 50px;
+        }
+        .chart-container canvas {
+            width: 30% !important;
+            height: 200px !important;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f9f9f9;
+        }
+
+
+    </style>
+    <!--Kayan panel-->
+    <iframe src="https://fxpricing.com/fx-widget/ticker-tape-widget.php?id=1,2,3,5,14,20&d_mode=compact-name" width="100%" height="85" style="border: unset;"></iframe> <div id="fx-pricing-widget-copyright"> <span></span><a href="https://fxpricing.com/" target="_blank"></a> </div> <style type="text/css"> #fx-pricing-widget-copyright{ text-align: center; font-size: 13px; font-family: sans-serif; margin-top: 10px; margin-bottom: 10px; color: #9db2bd; } #fx-pricing-widget-copyright a{ text-decoration: unset; color: #bb3534; font-weight: 600; } </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="mb-4">BLG DÖVİZ</h1>
+        <div class="nav-buttons">
+            <button class="cssbuttons-io-button" onclick="goToHomePage()('Anasayfa')">Anasayfa</button> 
+            <button class="cssbuttons-io-button" onclick="getFinancialData('pariteler')">Pariteler</button>
+            <button class="cssbuttons-io-button" onclick="getFinancialData('dovizler')">Dövizler</button>
+            <button class="cssbuttons-io-button" onclick="getFinancialData('hisseler')">Hisseler</button>
+            <button class="cssbuttons-io-button" onclick="getFinancialData('altin')">Altın</button>
+            <button class="cssbuttons-io-button" onclick="getFinancialData('kripto-para')">Kripto Paralar</button>
+        </div>
+    </div>
+    
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="financialData" class="mt-4">
+                    <!-- API'den gelen veriler buraya eklenecek -->
+                </div>
+            </div>
+        </div>
+    </div>
+          
+
+    <!-- GRAFİKLER -->
+    <div class="tradingview-widget-container" style="height:600px;width:100%">
+        <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+        <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text"></span></a></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+        {
+        "autosize"; true,
+        "symbol"; "NASDAQ:AAPL",
+        "interval"; "D",
+        "timezone"; "Etc/UTC",
+        "theme"; "dark",
+        "style"; "1",
+        "locale"; "en",
+        "allow_symbol_change"; true,
+        "calendar"; false,
+        "support_host"; "https://www.tradingview.com"
+        }
+        </script>
+    </div>
+    
+    <script>
+        function goToHomePage() {
+            window.location.href = 'test.html';
+        }
+    </script>
+    
+   
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script>
+        function getFinancialData(type) {
+            fetch(`http://localhost:8080/api/${type}`)
+                .then(response => response.json())
+                .then(data => {
+                    const financialDataDiv = document.getElementById('financialData');
+                    financialDataDiv.innerHTML = '';
+
+                    const table = document.createElement('table');
+                    table.classList.add('table', 'table-striped');
+                    const tableHead = document.createElement('thead');
+                    const tableBody = document.createElement('tbody');
+
+                    // Verileri id'ye göre sırala
+                    data.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+                    const headers = Object.keys(data[0]);
+                    const headerNames = {
+                        "id": "Sıra",
+                        "kod": "Kod",
+                        "isim": "İsim",
+                        "son_deger": "Son Değer",
+                        "alis_deger": "Alış Değer",
+                        "satis_deger": "Satış Değer",
+                        "fark": "Fark",
+                        "tarih": "Tarih",
+                        "sonDeger": "Son Değer",
+                        "degisimYuzde": "Değişim Yüzdesi",
+                        "degisim_yuzde": "Değişim Yüzdesi",
+                        "hacim": "Hacim",
+                        "saat": "Saat",
+                        "adi":"Adı"
+                    };
+
+                    const headRow = document.createElement('tr');
+                    headers.forEach(header => {
+                        const th = document.createElement('th');
+                        th.textContent = headerNames[header] || header;
+                        headRow.appendChild(th);
+                    });
+                    tableHead.appendChild(headRow);
+
+                    // Verileri tabloya ekle
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        headers.forEach(header => {
+                            const td = document.createElement('td');
+
+                            let cellValue = item[header];
+                            if (header === 'fark') {
+                                cellValue = String(cellValue);
+                                const percentIndex = cellValue.indexOf('%');
+                                if (percentIndex !== -1 && cellValue.substring(percentIndex + 1).trim().startsWith('-')) {
+                                    td.classList.add('negative');
+                                } else {
+                                    td.classList.add('positive');
+                                }
+                            } else if (header === 'degisim_yuzde' || header === 'degisimYuzde') {
+                                cellValue = String(cellValue);
+                                if (cellValue.startsWith('-')) {
+                                    td.classList.add('negative');
+                                } else {
+                                    td.classList.add('positive');
+                                }
+                            }
+                            td.textContent = cellValue;
+                            row.appendChild(td);
+                        });
+                        tableBody.appendChild(row);
+                    });
+
+                    table.appendChild(tableHead);
+                    table.appendChild(tableBody);
+                    financialDataDiv.appendChild(table);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+    </script>
+</body>
+</html>
